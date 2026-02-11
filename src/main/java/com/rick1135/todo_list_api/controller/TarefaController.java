@@ -16,7 +16,7 @@ public class TarefaController {
     }
 
     @PostMapping
-    public List<Tarefa> create(@RequestBody Tarefa tarefa){
+    public Tarefa create(@RequestBody Tarefa tarefa){
         return service.criar(tarefa);
     }
 
@@ -26,12 +26,12 @@ public class TarefaController {
     }
 
     @PutMapping
-    public List<Tarefa> update(@RequestBody Tarefa tarefa){
+    public Tarefa update(@RequestBody Tarefa tarefa){
         return service.atualizar(tarefa);
     }
 
     @DeleteMapping("/{id}")
-    public List<Tarefa> delete(@PathVariable Long id){
-        return service.deletar(id);
+    public void delete(@PathVariable Long id){
+        service.deletar(id);
     }
 }

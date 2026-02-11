@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha To-Do List</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { text-align: center; color: #333; }
+        .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 10px; }
+        input, select, button { width: 100%; padding: 8px; margin-top: 5px; }
+        button { background-color: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        .task { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .done { text-decoration: line-through; color: #888; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8em; color: white; }
+        .ALTA { background-color: #dc3545; }
+        .MEDIA { background-color: #ffc107; color: black; }
+        .BAIXA { background-color: #17a2b8; }
+    </style>
+</head>
+<body>
+
+<h1>📋 Gerenciador de Tarefas</h1>
+
+<div class="card">
+    <h3>Nova Tarefa</h3>
+    <div class="form-group">
+        <input type="text" id="desc" placeholder="O que precisa ser feito?">
+    </div>
+    <div class="form-group">
+        <select id="prio">
+            <option value="ALTA">Prioridade Alta</option>
+            <option value="MEDIA">Prioridade Média</option>
+            <option value="BAIXA">Prioridade Baixa</option>
+        </select>
+    </div>
+    <button onclick="adicionarTarefa()">Adicionar</button>
+</div>
+
+<div id="lista-tarefas">
+</div>
+
+<script>
+    const API_URL = 'http://localhost:8080/tarefas';
+
+    // Carregar tarefas ao abrir a página
+    async function carregarTarefas() {
+        const response = await fetch(API_URL);
+        const tarefas = await response.json();
+
+        const lista = document.getElementById('lista-tarefas');
+        lista.innerHTML = ''; // Limpa a lista antes de renderizar
+
+        tarefas.forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'task';
+
+            // Formata a data (se existir)
+            const dataFormatada = t.data ? new Date(t.data).toLocaleDateString() : '';
+
+            div.innerHTML = `
+                    <div>
+                        <span class="badge ${t.prioridade}">${t.prioridade}</span>
+                        <strong class="${t.concluida ? 'done' : ''}">${t.descricao}</strong>
+                        <small style="color: #666; margin-left: 10px;">${dataFormatada}</small>
+                    </div>
+                    <input type="checkbox" ${t.concluida ? 'checked' : ''}
+                           onchange="alternarStatus(${t.id}, this.checked, '${t.descricao}', '${t.prioridade}', '${t.data}')">
+                `;
+            lista.appendChild(div);
+        });
+    }
+
+    // Adicionar nova tarefa
+    async function adicionarTarefa() {
+        const descricao = document.getElementById('desc').value;
+        const prioridade = document.getElementById('prio').value;
+
+        if (!descricao) return alert('Digite uma descrição!');
+
+        const novaTarefa = {
+            descricao: descricao,
+            prioridade: prioridade,
+            concluida: false,
+            data: new Date().toISOString().split('T')[0] // Data de hoje (AAAA-MM-DD)
+        };
+
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novaTarefa)
+        });
+
+        document.getElementById('desc').value = ''; // Limpa campo
+        carregarTarefas(); // Recarrega a lista
+    }
+
+    // Marcar como concluída (Atualizar)
+    async function alternarStatus(id, checked, desc, prio, data) {
+        const tarefaAtualizada = {
+            id: id,
+            descricao: desc,
+            prioridade: prio,
+            data: data,
+            concluida: checked
+        };
+
+        await fetch(API_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tarefaAtualizada)
+        });
+
+        carregarTarefas();
+    }
+
+    // Inicia carregando
+    carregarTarefas();
+</script>
+</body>
+</html>

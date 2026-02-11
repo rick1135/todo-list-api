@@ -15,9 +15,8 @@ public class TarefaService {
         this.repository = repository;
     }
 
-    public List<Tarefa> criar(Tarefa tarefa) {
-        repository.save(tarefa);
-        return listar();
+    public Tarefa criar(Tarefa tarefa) {
+        return repository.save(tarefa);
     }
 
     public List<Tarefa> listar() {
@@ -25,13 +24,11 @@ public class TarefaService {
         return repository.findAll(sort);
     }
 
-    public List<Tarefa> atualizar(Tarefa tarefa) {
-       repository.save(tarefa);
-        return listar();
+    public Tarefa atualizar(Tarefa tarefa) {
+        return repository.save(tarefa);
     }
 
-    public List<Tarefa> deletar(Long id) {
+    public void deletar(Long id) {
         repository.deleteById(id);
-        return listar();
     }
 }
