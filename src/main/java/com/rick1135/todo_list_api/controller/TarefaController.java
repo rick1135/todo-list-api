@@ -25,8 +25,9 @@ public class TarefaController {
         return service.listar();
     }
 
-    @PutMapping
-    public Tarefa update(@RequestBody Tarefa tarefa){
+    @PutMapping({"/{id}"})
+    public Tarefa update(@PathVariable Long id, @RequestBody Tarefa tarefa){
+        tarefa.setId(id);
         return service.atualizar(tarefa);
     }
 
