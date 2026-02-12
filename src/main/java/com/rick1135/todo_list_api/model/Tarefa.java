@@ -19,5 +19,5 @@ public class Tarefa {
     @Enumerated(EnumType.STRING)
     private Prioridade prioridade;
 
-    private LocalDate data;
+    private LocalDate dataLimite;
 }
